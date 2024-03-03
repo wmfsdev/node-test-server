@@ -1,4 +1,3 @@
 # node-test-server
 
-codesandbox.io
-live: https://lcjpqj-8080.csb.app/
+live: https://replit.com/@wmfullstack/node-test-server?v=1
