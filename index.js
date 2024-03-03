@@ -1,27 +1,45 @@
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
+const path = require('path');
 
-http.createServer(function (req, res) {
+http.createServer((req, res) => {
   const q = url.parse(req.url, true);
   const filename = "." + q.pathname;
+  
+  // Extension and Content type
+  let extname = path.extname(filename)
+  let contentType = "text/html"
+ 
+  switch (extname) {
+    case ".js":
+      contentType = "text/javascript";
+      break;
+    case ".css":
+      contentType = "text/css";
+      break;
+    case ".json":
+      contentType = "application/json";
+      break;
+  }
 
-  fs.readFile(filename, function(err, data) {
-    if (req.url === '/') {
-      fs.readFile('index.html', (err, content) => {
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.end(content, "utf8");
-      })
-    }
-    else if (err) {
-      fs.readFile('404.html', (err, content) => {
-        res.writeHead(404, { "Content-Type": "text/html" });
-        res.end(content, "utf8");
-      })
+  fs.readFile(filename, (err, content) => {
+    if (err) {
+      if (err.code == "ENOENT") {
+        // Page not found
+        fs.readFile('404.html', (err, content) => {
+          res.writeHead(404, { "Content-Type": "text/html" });
+          res.end(content, "utf8");
+        })
+      } else {
+        //  Server error
+        res.writeHead(500);
+        res.end(`Server Error: ${err.code}`);
+      }
     } else {
-      res.writeHead(200, {'Content-Type': 'text/html'});
-      res.write(data);
-      return res.end();
-    } 
+      // Success
+      res.writeHead(200, {'Content-Type': contentType });
+      res.end(content, 'utf8');
+    }
   });
 }).listen(8080);
