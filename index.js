@@ -23,6 +23,8 @@ http.createServer((req, res) => {
       break;
   }
 
+  if (filename === "./") filename = "index.html";
+
   fs.readFile(filename, (err, content) => {
     if (err) {
       if (err.code == "ENOENT") {
